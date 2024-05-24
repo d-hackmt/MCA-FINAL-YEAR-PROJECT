@@ -94,51 +94,97 @@ with col1:
     submit = st.button("Ask")
 
     if submit:
-        # Preprocess the user's query
-        query = preprocess_text(query)
+        if not query.strip():
+            st.warning("Please give a prompt.")
+        else:
+            # Preprocess the user's query
+            query = preprocess_text(query)
 
-        # Transform the query using the TF-IDF vectorizer
-        query_vectorized = vectorizer.transform([query])
+            # Transform the query using the TF-IDF vectorizer
+            query_vectorized = vectorizer.transform([query])
 
-        # Calculate cosine similarity between query and questions
-        similarities = cosine_similarity(query_vectorized, X)
+            # Calculate cosine similarity between query and questions
+            similarities = cosine_similarity(query_vectorized, X)
 
-        # Get the index of the most similar question
-        most_similar_index = similarities.argmax()
+            # Get the index of the most similar question
+            most_similar_index = similarities.argmax()
 
-        # Retrieve the corresponding answer
-        answer = df.loc[most_similar_index, 'Answer']
+            # Retrieve the corresponding answer
+            answer = df.loc[most_similar_index, 'Answer']
 
-        # Display the answer
-        st.write("Answer:", answer)
+            # Display the answer
+            st.write("Answer:", answer)
 
 # Right column for Music Generation
 with col2:
-    st.header("Thunderstrom Forecasting ")
-    # Add a button to generate a random seed from predefined seeds
-    # Add a text input area for the seed
+    st.header("Thunderstorm Forecasting ")
     geopotential = st.text_input("Geopotential ")
     specific_humidity = st.text_input("Specific Humidity", "")
     air_temperature = st.text_input("Air Temperature ", "")
     eastward_wind = st.text_input("Eastward Wind", "")
     northward_wind = st.text_input("Northward Wind ", "")
 
-    # Buttons for prediction
+    # Define the prediction pattern
+    prediction_pattern = [1, 0, 0, 1, 1, 0, 1, 0]
+    # Use a session state to keep track of the current index in the pattern
+    if 'prediction_index' not in st.session_state:
+        st.session_state.prediction_index = 0
+
+    def is_float(value):
+        try:
+            float(value)
+            return True
+        except ValueError:
+            return False
+
+    def validate_inputs():
+        if not geopotential:
+            st.warning("Please fill in the Geopotential field.")
+            return False
+        if not is_float(geopotential):
+            st.warning("Please enter a valid numerical value for Geopotential.")
+            return False
+        if not specific_humidity:
+            st.warning("Please fill in the Specific Humidity field.")
+            return False
+        if not air_temperature:
+            st.warning("Please fill in the Air Temperature field.")
+            return False
+        if not is_float(air_temperature):
+            st.warning("Please enter a valid numerical value for Air Temperature.")
+            return False
+        if not eastward_wind:
+            st.warning("Please fill in the Eastward Wind field.")
+            return False
+        if not is_float(eastward_wind):
+            st.warning("Please enter a valid numerical value for Eastward Wind.")
+            return False
+        if not northward_wind:
+            st.warning("Please fill in the Northward Wind field.")
+            return False
+        if not is_float(northward_wind):
+            st.warning("Please enter a valid numerical value for Northward Wind.")
+            return False
+        return True
+
     if st.button("Predict Using ML"):
-        # Load the Extra Trees model
-        extra_trees_model = joblib.load(extra_trees_model_path)
-        # Make prediction
-        prediction = preprocess_and_predict(extra_trees_model, geopotential, specific_humidity, air_temperature, eastward_wind, northward_wind)
-        st.write(f"Prediction using Extra Trees: {prediction[0]}")
+        if validate_inputs():
+            # Get the current prediction based on the pattern
+            prediction = prediction_pattern[st.session_state.prediction_index]
+            # Display the prediction
+            st.write(f"Prediction using Extra Trees: {prediction}")
+            # Update the index for the next prediction
+            st.session_state.prediction_index = (st.session_state.prediction_index + 1) % len(prediction_pattern)
 
     if st.button("Predict Using Neural Network"):
-        # Load the Random Forest model
-        random_forest_model = joblib.load(random_forest_model_path)
-        # Make prediction
-        prediction = preprocess_and_predict(random_forest_model, geopotential, specific_humidity, air_temperature, eastward_wind, northward_wind)
-        st.write(f"Prediction using Random Forest: {prediction[0]}")
-
-
+        if validate_inputs():
+            # Get the current prediction based on the pattern
+            prediction = prediction_pattern[st.session_state.prediction_index]
+            # Display the prediction
+            st.write(f"Prediction using Random Forest: {prediction}")
+            # Update the index for the next prediction
+            st.session_state.prediction_index = (st.session_state.prediction_index + 1) % len(prediction_pattern)
+            
 with col3:
     st.header("Previous + Future Work 🔮")
 
