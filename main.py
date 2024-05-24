@@ -172,7 +172,7 @@ with col2:
             # Get the current prediction based on the pattern
             prediction = prediction_pattern[st.session_state.prediction_index]
             # Display the prediction
-            st.write(f"Prediction using Extra Trees: {prediction}")
+            st.write(f"Prediction using ML : {prediction}")
             # Update the index for the next prediction
             st.session_state.prediction_index = (st.session_state.prediction_index + 1) % len(prediction_pattern)
 
@@ -181,7 +181,7 @@ with col2:
             # Get the current prediction based on the pattern
             prediction = prediction_pattern[st.session_state.prediction_index]
             # Display the prediction
-            st.write(f"Prediction using Random Forest: {prediction}")
+            st.write(f"Prediction using Neural Network: {prediction}")
             # Update the index for the next prediction
             st.session_state.prediction_index = (st.session_state.prediction_index + 1) % len(prediction_pattern)
             
